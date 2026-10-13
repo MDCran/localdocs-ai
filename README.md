@@ -6,15 +6,15 @@ LocalDocs AI is a local document assistant. It indexes PDF, Word, text, and Mark
 
 ## App screenshots
 
-These captures show the document dashboard and cited chat experience.
+These captures show the dashboard and a cited answer in the chat workspace.
 
 ### Dashboard
 
-![LocalDocs AI dashboard showing collections, document status, and recent activity](docs/screenshots/dashboard.png)
+![LocalDocs AI dashboard showing the collection summary and recent documents](docs/screenshots/dashboard.png)
 
 ### Chat
 
-![LocalDocs AI chat showing an answer alongside source excerpts and page references](docs/screenshots/chat.png)
+![LocalDocs AI chat showing an answer with its cited source document](docs/screenshots/chat.png)
 
 ## Highlights
 

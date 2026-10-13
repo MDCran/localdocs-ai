@@ -11,12 +11,12 @@ test("create collection, upload, inspect search, chat, and remove document", asy
   try {
     const screenshots = resolve(process.cwd(), "../../docs/screenshots");
     await mkdir(screenshots, { recursive: true });
-    await page.setViewportSize({ width: 1440, height: 1024 });
+    await page.setViewportSize({ width: 1536, height: 1100 });
     await page.goto("/");
     await expect(
-      page.getByRole("heading", { name: "Your knowledge, within reach." }),
+      page.getByRole("heading", { name: "Overview" }),
     ).toBeVisible();
-    await page.screenshot({ path: resolve(screenshots, "dashboard.png"), fullPage: true });
+    await page.screenshot({ path: resolve(screenshots, "dashboard.png") });
     await page.goto("/collections");
     await page.getByRole("button", { name: "New collection" }).click();
     await page.getByRole("textbox", { name: "Name", exact: true }).fill(name);
@@ -62,7 +62,7 @@ test("create collection, upload, inspect search, chat, and remove document", asy
       page.getByRole("button", { name: "Copy response" }),
     ).toBeVisible({ timeout: 120000 });
     await expect(page.getByText(/30 days/, { exact: false })).toBeVisible();
-    await page.screenshot({ path: resolve(screenshots, "chat.png"), fullPage: true });
+    await page.screenshot({ path: resolve(screenshots, "chat.png") });
     await page.reload();
     await expect(page.getByText(/30 days/, { exact: false })).toBeVisible();
     await page.getByRole("button", { name: /operations.md/ }).click();
@@ -89,7 +89,7 @@ test("mobile navigation, dark theme, and keyboard dialog access", async ({
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Your knowledge, within reach." }),
+    page.getByRole("heading", { name: "Overview" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Use dark theme" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);

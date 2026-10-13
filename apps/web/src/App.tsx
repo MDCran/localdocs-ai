@@ -46,8 +46,8 @@ const navigation = [
   { to: "/", label: "Overview", icon: LayoutDashboard },
   { to: "/documents", label: "Documents", icon: Files },
   { to: "/collections", label: "Collections", icon: FolderOpen },
-  { to: "/chat", label: "AI workspace", icon: MessageSquare },
-  { to: "/search", label: "Semantic search", icon: Search },
+  { to: "/chat", label: "Ask documents", icon: MessageSquare },
+  { to: "/search", label: "Search", icon: Search },
 ];
 
 export function App() {
@@ -84,7 +84,7 @@ export function App() {
             <Layers3 size={23} />
           </span>
           <span className="brand-text">
-            LocalDocs<span>AI KNOWLEDGE WORKSPACE</span>
+            LocalDocs AI<span>DOCUMENT ASSISTANT</span>
           </span>
         </NavLink>
         <Button
@@ -111,15 +111,14 @@ export function App() {
             >
               <item.icon size={19} />
               <span>{item.label}</span>
-              {item.to === "/chat" && <span className="nav-tag">LOCAL</span>}
             </NavLink>
           ))}
         </nav>
-        <div className="nav-label system-label">SYSTEM</div>
+        <div className="nav-label system-label">TOOLS</div>
         <nav aria-label="System navigation">
           {[
-            { to: "/jobs", label: "Processing queue", icon: Activity },
-            { to: "/diagnostics", label: "Retrieval insights", icon: BookOpen },
+            { to: "/jobs", label: "Jobs", icon: Activity },
+            { to: "/diagnostics", label: "Diagnostics", icon: BookOpen },
             { to: "/settings", label: "Settings", icon: Settings2 },
           ].map((item) => (
             <NavLink
@@ -139,11 +138,8 @@ export function App() {
         <div className="sidebar-bottom">
           <div className="privacy-note">
             <ShieldCheck size={22} />
-            <strong>Your documents stay here.</strong>
-            <p>
-              Local models. Local storage.
-              <br />A workspace under your control.
-            </p>
+            <strong>On-device storage</strong>
+            <p>Documents and model requests stay on this machine.</p>
           </div>
           <div className="sidebar-status">
             <span
@@ -151,8 +147,8 @@ export function App() {
             />
             <span>
               {health.data?.status === "ready"
-                ? "Local services connected"
-                : "Check local services"}
+                ? "Services ready"
+                : "Service check needed"}
             </span>
             <Button
               variant="ghost"
@@ -177,10 +173,10 @@ export function App() {
             >
               <Menu size={20} />
             </Button>
-            <span className="topbar-label">Personal workspace</span>
+            <span className="topbar-label">Local workspace</span>
             <span className="local-badge">
               <ShieldCheck size={12} />
-              Local only
+              On this device
             </span>
           </div>
           <div className="row">
@@ -201,9 +197,6 @@ export function App() {
             >
               {dark ? <Sun size={18} /> : <Moon size={18} />}
             </Button>
-            <div className="avatar" aria-label="Personal workspace">
-              P
-            </div>
           </div>
         </div>
         <main id="main-content">

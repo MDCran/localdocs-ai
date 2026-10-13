@@ -178,9 +178,9 @@ export function Chat() {
   return (
     <div className="page chat-page">
       <Heading
-        eyebrow="LOCAL AI WORKSPACE"
-        title="Ask. Explore. Understand."
-        description="Answers grounded in your documents, with passages you can inspect."
+        eyebrow="DOCUMENT SEARCH"
+        title="Ask your documents"
+        description="Get answers with citations to the source passages."
       />
       <ErrorState
         error={collections.error ?? chats.error ?? conversation.error}

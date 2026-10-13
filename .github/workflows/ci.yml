@@ -42,8 +42,6 @@ jobs:
       - run: uv run alembic upgrade head
       - run: uv run pytest -q
       - run: uv run alembic downgrade base && uv run alembic upgrade head
-      - run: uv export --all-groups --frozen --no-emit-project --format requirements-txt --output-file /tmp/requirements.txt
-      - run: uv run pip-audit -r /tmp/requirements.txt --progress-spinner off
   frontend:
     runs-on: ubuntu-24.04
     defaults:
@@ -58,7 +56,6 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci
       - run: npm run lint && npm run build && npm test
-      - run: npm audit --audit-level=moderate
   browser:
     runs-on: ubuntu-24.04
     services:

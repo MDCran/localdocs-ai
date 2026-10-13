@@ -1,52 +1,42 @@
 # LocalDocs AI
 
-**Search and talk to your documents on your own machine.** Upload a PDF, Word document, text file, or Markdown note. LocalDocs extracts and indexes its passages, then answers questions with references to the source pages. Documents, vectors, conversations, and model inference stay in your local environment.
+[![Security checks](https://github.com/MDCran/localdocs-ai/actions/workflows/security-checks.yml/badge.svg)](https://github.com/MDCran/localdocs-ai/actions/workflows/security-checks.yml) [![CodeQL](https://github.com/MDCran/localdocs-ai/actions/workflows/codeql.yml/badge.svg)](https://github.com/MDCran/localdocs-ai/security/code-scanning)
 
-[![CI](https://github.com/MDCran/localdocs-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/MDCran/localdocs-ai/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-7a936b.svg)](LICENSE)
-[![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-4b6685.svg)](pyproject.toml)
-[![React and TypeScript](https://img.shields.io/badge/React-TypeScript-587c83.svg)](apps/web/package.json)
+LocalDocs AI is a local document assistant. It indexes PDF, Word, text, and Markdown files, then answers questions with citations to the source passages. Documents, conversations, embeddings, and model inference stay in your local setup.
 
-![LocalDocs AI overview dashboard](docs/screenshots/dashboard.png)
+## App screenshots
 
-*The dashboard brings the sample collection, document status, and recent activity into one view.*
+These captures show the document dashboard and cited chat experience.
 
-## Start locally
+### Dashboard
 
-Install [Docker Desktop](https://docs.docker.com/desktop/), [Ollama](https://ollama.com/download), Python 3.12+, [uv](https://docs.astral.sh/uv/), and Node.js 24+. Download the local models once:
+![LocalDocs AI dashboard showing collections, document status, and recent activity](docs/screenshots/dashboard.png)
 
-```sh
-ollama pull nomic-embed-text
-ollama pull llama3.2:3b
-```
+### Chat
 
-Then start PostgreSQL, Redis, the API, the worker, and the web interface:
+![LocalDocs AI chat showing an answer alongside source excerpts and page references](docs/screenshots/chat.png)
 
-```sh
-uv sync --frozen
-uv run python scripts/setup.py
-docker compose up --build
-```
+## Highlights
 
-Open [localhost:5178](http://localhost:5178). The first run downloads the container images and application dependencies. Inference runs through Ollama on the host; the Compose stack does not download model weights.
+- Upload PDF, DOCX, TXT, and Markdown files; follow extraction and indexing jobs through completion.
+- Organize files into collections and choose the document scope for each question.
+- Search with local embeddings, PostgreSQL full text, or hybrid ranking.
+- Stream answers with citations, source excerpts, and page references where available.
+- Resume, export, and delete saved conversations.
+- Review retrieval diagnostics, model details, and request timings.
 
-To load the synthetic example documents, run `uv run python scripts/seed.py` in a second terminal. It creates a collection and queues three real Markdown documents for extraction and embedding.
+## Stack
 
-For step by step Windows with WSL2, macOS, Linux, developer setup, GPU notes, and troubleshooting, see the [setup guide](docs/setup.md). The default ports bind to loopback. Do not expose the single user application to a shared network.
+| Area | Components |
+| --- | --- |
+| Web | React, TypeScript, Vite, Tailwind CSS, Radix UI, TanStack Query |
+| API | Python 3.12+, FastAPI, Pydantic, SQLAlchemy, Alembic |
+| Retrieval | Ollama embeddings, PostgreSQL, pgvector, PostgreSQL full text search |
+| Generation | Ollama with LangChain, streamed to the web app over server-sent events |
+| Jobs and files | PostgreSQL job leases, Redis wakeups, local filesystem |
+| Quality | Ruff, mypy, pytest, ESLint, Vitest, Playwright, GitHub Actions |
 
-## What you can do
-
-- Organize documents into collections and choose the document scope of a question.
-- Extract text from PDF, DOCX, TXT, and Markdown files, with page references where available.
-- Embed passages locally and search with cosine similarity, PostgreSQL full text, or reciprocal rank fusion.
-- Stream locally generated answers with checked citations and source excerpt cards.
-- Create, rename, resume, export, and delete persistent conversations.
-- Track durable ingestion jobs, bounded retries, failures, document reprocessing, and deletion.
-- Inspect retrieval method, candidate count, model metadata, and timings.
-- Configure the generation model, temperature, result count, context budget, similarity threshold, and hybrid retrieval.
-- Review light and dark dashboards, searchable document lists, and source previews on mobile or desktop.
-
-## How it works
+## Architecture
 
 ```mermaid
 flowchart LR
@@ -62,85 +52,99 @@ flowchart LR
   J --> K[Checked citations and saved conversation]
 ```
 
-PostgreSQL owns both the vector index and durable job state; Redis only signals waiting workers. Each job uses a time limited lease and a fencing token. Embeddings include model and dimensionality metadata. Answers receive only the current question, the recent conversation history, and bounded retrieved passages. History helps interpret follow ups, but it does not become search evidence. Passages explicitly marked as untrusted or adversarial are omitted from ordinary factual answers and remain available for source inspection. The model has no tools to execute document content.
+PostgreSQL stores document metadata, vectors, conversations, and job data; uploaded files stay on the local filesystem. Redis signals waiting workers. Answers use the current question, recent conversation history, and a bounded set of retrieved passages. Explicitly marked untrusted passages remain available for source inspection and are excluded from ordinary factual answers. The model has no tools for executing document content. See the [architecture notes](docs/architecture.md) for the design details.
 
-Each citation points to a source passage supplied during generation. A citation that references another ID is labeled as unverified. Citation excerpts are saved with conversations so a reference survives deletion of its source file. The full [architecture and database decisions](docs/architecture.md) explain the design and its tradeoffs.
+## Requirements
 
-## Interface
+To run the app, install [Docker Desktop](https://docs.docker.com/desktop/), [Ollama](https://ollama.com/download), Python 3.12+, and [uv](https://docs.astral.sh/uv/). Frontend development and test commands require Node.js 24+ and npm.
 
-![LocalDocs AI chat workspace with source references](docs/screenshots/chat.png)
+## Getting started
 
-*The chat workspace pairs a response with the actual source excerpts and page numbers.*
+Download the local models once:
 
-The product interface uses a restrained Nord inspired palette, clear document states, citation previews, accessible keyboard navigation, and an optional dark theme. See the [design notes](docs/design.md) for the choices behind the layout.
+```bash
+ollama pull nomic-embed-text
+ollama pull llama3.2:3b
+```
 
-## Stack
+Create the local environment file and start the services:
 
-| Layer | Components |
+```bash
+uv sync --frozen
+uv run python scripts/setup.py
+docker compose up --build
+```
+
+Open [http://localhost:5178](http://localhost:5178). The first start downloads container images and application dependencies. Ollama runs on the host; Docker Compose does not download model weights.
+
+To load the example documents, open a second terminal and run:
+
+```bash
+uv run python scripts/seed.py
+```
+
+The default ports bind to loopback. For platform-specific setup, GPU notes, and troubleshooting, see the [local setup guide](docs/setup.md).
+
+## Configuration
+
+The setup script creates `.env` from [.env.example](.env.example) and generates a local database password. Change `CHAT_MODEL` or `EMBEDDING_MODEL` there to use different Ollama models. Changing the embedding model may require reprocessing existing documents. The [setup guide](docs/setup.md) covers model compatibility, GPU configuration, and Docker networking.
+
+## API routes
+
+All API routes use the `/api/v1` prefix. The interactive reference is available at [`/api/docs`](http://localhost:8008/api/docs); the machine-readable schema is at `/api/openapi.json`.
+
+| Route | Purpose |
 | --- | --- |
-| Web | React, TypeScript, Vite, Tailwind CSS, Radix UI, TanStack Query, React Router |
-| API | Python 3.12+, FastAPI, Pydantic, SQLAlchemy async, Alembic |
-| Retrieval | Local Ollama embeddings, pgvector, PostgreSQL full text, reciprocal rank fusion |
-| Generation | Local Ollama through LangChain, streamed over server sent events |
-| Jobs and files | PostgreSQL job leases, Redis wakeups, local filesystem, bounded parser process |
-| Delivery | Docker Compose, Ruff, mypy, ESLint, pytest, Vitest, Playwright, GitHub Actions |
+| `/api/v1/collections` | Create and manage document collections |
+| `/api/v1/documents` | Upload, inspect, reprocess, and delete documents |
+| `/api/v1/jobs` | Check ingestion status and receive progress events |
+| `/api/v1/retrieval/search` | Search indexed passages |
+| `/api/v1/conversations` | Stream answers, inspect citations, and manage saved conversations |
+| `/api/v1/settings`, `/api/v1/models` | Read runtime settings and available models |
+| `/api/v1/health`, `/api/v1/ready`, `/api/v1/metrics` | Check service health and metrics |
 
-## Evaluation
+See the [API guide](docs/api.md) for the full route list.
 
-Run the reproducible retrieval evaluation against downloaded models:
+## Tests and evaluation
 
-```sh
-uv run python scripts/evaluate.py
-uv run python scripts/evaluate.py --answers
-```
+Run backend checks from the repository root:
 
-The first command reports Recall@K and mean reciprocal rank for keyword, vector, and hybrid search. The optional answer pass records citation validity, expected fact checks, cited passage coverage, abstention, and an injection regression check. Reports capture the run time, settings, model names, passages, and measured outcomes. This repository does not publish synthetic benchmark claims. Expected fact and refusal checks use phrase matching, so review answers against their cited evidence.
-
-The optional live verification performs a real PDF upload, local embedding, vector search, Ollama response, citation persistence, and document deletion:
-
-```sh
-uv run python scripts/smoke_live.py
-```
-
-Deterministic unit and integration tests use model fixtures; CI does not download model weights. The browser CI starts a small local Ollama protocol fixture. See the [evaluation methodology](docs/evaluation.md) for what these results can and cannot demonstrate.
-
-## Tests and quality checks
-
-```sh
+```bash
 uv run ruff check .
 uv run mypy
 uv run python scripts/test.py
-cd apps/web
+```
+
+Run frontend checks from `apps/web`:
+
+```bash
 npm ci
 npm run lint
 npm test
 npm run build
 ```
 
-`scripts/test.py` uses a database name ending in `_test`, runs migrations, and refuses to truncate a database without that suffix. The browser suite exercises uploads, real local retrieval, answers, citation sources, persistence, deletion, mobile navigation, keyboard access, and theme switching.
+The browser suite covers uploads, retrieval, cited answers, conversation persistence, mobile navigation, keyboard access, and theme switching. To run the retrieval evaluation and optional answer checks, use `uv run python scripts/evaluate.py` and `uv run python scripts/evaluate.py --answers`. See the [evaluation methodology](docs/evaluation.md) for the scope and limits of those checks.
 
-## REST API
+## Security and privacy
 
-The interactive OpenAPI reference is served at `/api/docs`; the schema is at `/api/openapi.json`. Key endpoints include collections and document management, jobs and progress, conversation streaming, retrieval and diagnostics, model status, health, and runtime settings. The [API guide](docs/api.md) lists the route families.
+LocalDocs AI is designed for one local user; it does not include sign-in or multi-user isolation. Keep the services on loopback unless you add an authentication and deployment boundary. Uploads are size-limited and stored under generated IDs. Document parsers run in a bounded process, and logs omit document content. See the [security policy](SECURITY.md) and [known limitations](docs/limitations.md).
 
-## Security and scope
+## Documentation
 
-The stack serves one local user. It does not implement sign in or multi tenancy. PostgreSQL, Redis, the API, and the interface bind to localhost. Do not expose these ports to a shared network without adding and reviewing an authentication and deployment boundary. File uploads are size limited, content checked, and stored under generated IDs. Archive extraction limits guard malformed DOCX files; PDF and DOCX parsers run in a bounded child process. Logs omit document content. Document instructions cannot invoke a tool. See the [security policy](SECURITY.md) and [limitations](docs/limitations.md).
-
-OCR, visual layout extraction, cloud inference, collaboration, and remote hosting are not included. Scanned PDFs report that OCR is needed. CPU inference can take time, and PDF page extraction order depends on the source file. Untrusted passage handling uses explicit labels and markers; it does not identify every possible prompt injection.
-
-## Project notes
-
-- [Architecture, data flow, and tradeoffs](docs/architecture.md)
+- [Architecture and design decisions](docs/architecture.md)
 - [Database schema](docs/database.md)
 - [Local setup](docs/setup.md)
+- [Troubleshooting](docs/troubleshooting.md)
 - [API reference](docs/api.md)
 - [Evaluation methodology](docs/evaluation.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Product design](docs/design.md)
+- [Product design notes](docs/design.md)
 - [Roadmap](docs/roadmap.md)
-- [Security policy](SECURITY.md)
 - [Contributing](CONTRIBUTING.md)
+
+## Ownership
+
+Built and maintained by [MDCran](https://github.com/MDCran).
 
 ## License
 

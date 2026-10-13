@@ -61,10 +61,13 @@ test("create collection, upload, inspect search, chat, and remove document", asy
     await expect(
       page.getByRole("button", { name: "Copy response" }),
     ).toBeVisible({ timeout: 120000 });
-    await expect(page.getByText(/30 days/, { exact: false })).toBeVisible();
+    const answer = page.locator(".chat-message.message-assistant");
+    await expect(answer).toHaveCount(1);
+    await expect(answer).toContainText("30 days");
     await page.screenshot({ path: resolve(screenshots, "chat.png") });
     await page.reload();
-    await expect(page.getByText(/30 days/, { exact: false })).toBeVisible();
+    await expect(answer).toHaveCount(1);
+    await expect(answer).toContainText("30 days");
     await page.getByRole("button", { name: /operations.md/ }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await page.getByRole("button", { name: "Close", exact: true }).click();

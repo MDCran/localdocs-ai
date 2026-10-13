@@ -26,7 +26,10 @@ test("create collection, upload, inspect search, chat, and remove document", asy
     await page.getByRole("button", { name: "Save collection" }).click();
     await page.getByRole("link", { name, exact: true }).click();
     collectionId = page.url().split("/").pop()!;
-    await page.getByRole("button", { name: "Upload documents" }).click();
+    await page
+      .locator("header")
+      .getByRole("button", { name: "Upload documents" })
+      .click();
     await page
       .getByLabel("Choose documents")
       .setInputFiles({

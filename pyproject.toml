@@ -1,0 +1,59 @@
+[project]
+name = "localdocs-ai"
+version = "0.1.0"
+description = "Local document retrieval and grounded conversation"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi==0.143.0",
+  "uvicorn[standard]==0.34.2",
+  "pydantic-settings==2.9.1",
+  "sqlalchemy[asyncio]==2.0.40",
+  "asyncpg==0.30.0",
+  "alembic==1.15.2",
+  "pgvector==0.4.1",
+  "redis==5.2.1",
+  "python-multipart==0.0.32",
+  "pypdf==6.20.1",
+  "python-docx==1.1.2",
+  "httpx==0.28.1",
+  "langchain-ollama==1.1.0",
+  "langchain-text-splitters==1.1.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==9.1.1",
+    "pytest-asyncio==1.4.0",
+    "ruff==0.11.8",
+    "mypy==1.15.0",
+    "reportlab==4.4.0",
+    "pip-audit==2.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["apps/api/localdocs", "workers"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = ["integration: requires PostgreSQL and Redis", "live: requires downloaded Ollama models"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501", "B008"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["apps/api/localdocs", "workers"]
+check_untyped_defs = true
+disallow_untyped_defs = true
+ignore_missing_imports = true

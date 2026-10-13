@@ -139,13 +139,18 @@ export async function stream(
     while (true) {
       const { done, value } = await reader.read();
       buffer += decoder.decode(value, { stream: !done });
+      buffer = buffer.replace(/\r\n?/g, "\n");
       let boundary: number;
       while ((boundary = buffer.indexOf("\n\n")) >= 0) {
         const parsed = parseEvent(buffer.slice(0, boundary));
         buffer = buffer.slice(boundary + 2);
         if (parsed) onEvent(parsed.kind, parsed.data);
       }
-      if (done) break;
+      if (done) {
+        const parsed = parseEvent(buffer.trim());
+        if (parsed) onEvent(parsed.kind, parsed.data);
+        break;
+      }
     }
   } finally {
     reader.releaseLock();

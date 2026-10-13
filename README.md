@@ -85,8 +85,6 @@ The product interface uses a restrained Nord inspired palette, clear document st
 | Jobs and files | PostgreSQL job leases, Redis wakeups, local filesystem, bounded parser process |
 | Delivery | Docker Compose, Ruff, mypy, ESLint, pytest, Vitest, Playwright, GitHub Actions |
 
-LangGraph is intentionally omitted; the request, evidence, and citation flow is a small sequential pipeline without a separate graph state machine.
-
 ## Evaluation
 
 Run the reproducible retrieval evaluation against downloaded models:

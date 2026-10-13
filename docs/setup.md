@@ -43,4 +43,4 @@ If another local Docker project has consumed the default subnet pool, the ignore
 
 ## Example corpus
 
-Run `uv run python scripts/seed.py` to upload synthetic operations, release, and retrieval notes through the public API. This adds real sample documents and background jobs; it does not create sample answers.
+Run `uv run python scripts/seed.py` to create a sample collection and send three synthetic Markdown documents through the normal extraction and embedding pipeline.

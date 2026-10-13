@@ -1,1 +1,0 @@
-Shared contracts are published by FastAPI at `/api/openapi.json`. The web client keeps its types in `apps/web/src/lib/api.ts`; API integration tests exercise the corresponding payloads. No separate package is needed until a second client exists.
